@@ -1,0 +1,94 @@
+<?php
+
+namespace Fmk\Facades;
+
+use Exception;
+use Fmk\Enums\Methods;
+
+
+
+class Route
+{
+    protected $uri;
+
+    protected $callback;
+
+    public array $paramns; //['cod_cliente'=>null]
+
+    protected Methods $method;
+
+    protected string $name;
+
+
+        public function __construct($name, $uri, Methods $method, $callback){
+            $this->name = $name;
+            $this->uri = $uri;
+            $this->method = $method;
+            $this->callback = $callback;
+            $this->paramns = array_fill_keys($this->checkParamns($uri),null);
+        }
+
+         //"/clientes/{cod_cliente}
+        //"clientes/55"
+        private function checkParamns($uri){
+            $exp = "(\{[a-z0-9_]{1,}\})";
+            if(preg_match_all($exp, $uri, $m)){
+                return preg_replace('(\{|\})','', $m[0]);
+            }
+
+            return [];
+        }
+
+
+        public function setParamns( array $paramns){ //['cod_cliente'=>22]
+            foreach($this->paramns as $key =>  &$param){
+                if(array_key_exists($key,$paramns)){
+                    $param = $paramns[$key];
+                }
+            }
+            return $this;
+        }
+
+        public function name($name){
+            Router::swapName($this->name,$name);
+            $this->name = $name;
+            return $this;
+        }
+
+       
+
+        public function getUrl(array $paramns = []){
+            $this->setParamns($paramns);
+            $base_url = defined("APPLICATION_URL")?constant('APPLICATION_URL'):"";
+            $base_url = preg_replace("/\/$/",'',$base_url);
+            $url = $this->uri;
+            foreach($this->paramns as $key =>$value){
+                if(is_null($value)){
+                    throw new Exception("$key é um parametro requerido para essa url");
+                }
+               $url = str_replace("{".$key."}",rawurlencode($value), $url);
+            }
+            return $base_url.$url;
+        }
+
+        public function __toString(){
+            return $this->getUrl();
+        }
+
+        public function exec(){
+
+        }
+
+        public function redirect(){
+            header("Laction: $this");
+            exit;
+        }
+
+        
+
+        //$route->setParamns(['''])->name()->redirect();
+    
+
+    
+
+}
