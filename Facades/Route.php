@@ -49,6 +49,13 @@ class Route
             return $this;
         }
 
+        public function defineParamns( array $paramns){
+            foreach($this->paramns as &$paramn){
+                $paramn = array_shift($paramns);
+            }
+            return $this;
+        }
+
         public function name($name){
             Router::swapName($this->name,$name);
             $this->name = $name;
@@ -77,6 +84,13 @@ class Route
 
         public function exec(){
 
+        }
+
+        public function getMethod(){
+            return $this->method;
+        }
+        public function getUri(){
+            return $this->uri;
         }
 
         public function redirect(){

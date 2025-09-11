@@ -8,9 +8,14 @@ use Fmk\Traits\Singleton;
 
 class Router
 {
-    protected array $routes;
     use Singleton;
-   protected static $private_methods = ['add'];
+    protected array $routes = [];
+
+    // Override the Singleton constructor to configure trait-level private methods
+    protected function __construct()
+    {
+        static::$private_methods = ['add'];
+    }
 
     protected function swapName($old_name, $new_name){
         if(array_key_exists($new_name, $this->routes)){
@@ -37,6 +42,44 @@ class Router
     protected function post($uri, $callback){
           return $this->add($uri, Methods::POST, $callback);
     }
+
+    protected function getRouteByName($name){
+        return $this->routes[$name] ?? null;
+    }
+
+    protected function checkUri($uri){
+        if(empty(trim($uri)) || $uri =='/'){
+            return "/";
+        }
+        $uri = (substr($uri, 0, 1)==="/")?$uri:"/$uri";
+        return rtrim($uri,"/");
+    }
+
+    protected function getRouteByUri($uri, Methods $method= Methods::GET){
+        /**
+         * /quartos/35/pedidos/15
+         * /quartos/{quarto}/pedidos/{pedido}
+         * /quartos/([a-zA-Z0-9_\-|\s]{1,})/pedidos/([a-zA-Z0-9_\-|\s]{1,})
+         */
+        $uri = $this->checkUri($uri);
+        foreach($this->routes as $key => $route){
+            if($route->getMethod() != $method){
+                continue;
+            }
+            $expression = preg_replace("(\{[a-z0-9_]{1,}\})","([a-zA-Z0-9_\-|\s]{1,})", $route->getUri());
+            if(preg_match("#^($expression)$#i",$uri, $matches) === 1){
+                array_shift($matches);
+                array_shift($matches);
+                $route->defineParamns($matches);
+                return $route;
+            }
+        }
+
+        return false;
+    }
+
+
+
 
 
 } 
