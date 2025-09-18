@@ -59,6 +59,17 @@ class Request
         return compact('data', 'uri', 'method');
     }
 
+    protected function exec(){
+        if($route = $this->getRoute()){
+            return $route->exec();
+        }
+        return Router::error404();
+    }
+
+    protected function getRoute(){
+        return Router::getRouteByUri($this->uri, $this->method);
+    }
+
 
 
 }

@@ -11,6 +11,9 @@ class Router
     use Singleton;
     protected array $routes = [];
 
+    protected static $error404;
+    protected static $error403;
+
     // Override the Singleton constructor to configure trait-level private methods
     protected function __construct()
     {
@@ -78,8 +81,29 @@ class Router
         return false;
     }
 
+    public static function defineError404(callable $callback){
+        static::$error404 = $callback;
+    }
 
+    public static function defineError403(callable $callback){
+        static::$error403 = $callback;
+    }
 
-
+    public static function error404(string $msg = "Not Found!"){
+        if(is_callable(static::$error404)){
+            call_user_func(static::$error404, ['msg' => $msg]);
+        }else{
+            http_response_code(404);
+            echo "Erro 404: $msg";
+        }
+    }
+    public static function error403(string $msg = "Forbidden!"){
+        if(is_callable(static::$error403)){
+            call_user_func(static::$error403, ['msg' => $msg]);
+        }else{
+            http_response_code(403);
+            echo "Erro 403: $msg";
+        }
+    }
 
 } 
