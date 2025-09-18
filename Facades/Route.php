@@ -4,11 +4,13 @@ namespace Fmk\Facades;
 
 use Exception;
 use Fmk\Enums\Methods;
+use Fmk\Traits\Middlewares;
 
 
 
 class Route
 {
+    use Middlewares;
     protected $uri;
 
     protected $callback;
@@ -18,6 +20,8 @@ class Route
     protected Methods $method;
 
     protected string $name;
+
+    protected bool $active = false;
 
 
         public function __construct($name, $uri, Methods $method, $callback){
@@ -83,6 +87,16 @@ class Route
         }
 
         public function exec(){
+            $callback = $this->callback;
+
+            $middlewares = $this->execMiddlewares();
+            if($middlewares !== true){
+                return $middlewares;
+            }
+            $this->active = true;
+
+            Session::requestRegister();
+            return call_user_func($callback, $this->paramns);
 
         }
 
@@ -94,15 +108,9 @@ class Route
         }
 
         public function redirect(){
-            header("Laction: $this");
+            header("Location: $this");
             exit;
         }
-
-        
-
-        //$route->setParamns(['''])->name()->redirect();
-    
-
     
 
 }

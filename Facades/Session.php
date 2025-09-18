@@ -95,9 +95,9 @@ class Session
         return false;
     }
 
-    protected function requestRegister(Request $request){
+    protected function requestRegister(){
         $_SESSION[static::REQUEST_OLD_KEY] = $this->request();
-        $_SESSION[static::REQUEST_KEY] = $request->toArray();
+        $_SESSION[static::REQUEST_KEY] = Request::toArray();
     }
 
     protected function request(){

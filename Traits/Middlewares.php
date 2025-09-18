@@ -7,7 +7,10 @@ use Fmk\Interfaces\Middleware;
 
 trait Middlewares
 {
-    protected array $middlewares = [];
+    protected array $middlewares = [
+        \Fmk\Middlewares\CsrfMiddleware::class,
+        \Fmk\Middlewares\DuplicateRequestGuardMiddleware::class
+    ];
 
     public function middleware($middleware)
     {
@@ -36,6 +39,7 @@ trait Middlewares
     public function execMiddlewares(callable $handle = null)
     {
         foreach ($this->swapMiddlewares() as $classMiddleware) {
+           
             $middleware = new $classMiddleware;
             if (!$middleware instanceof Middleware) {
                 throw new Exception("$classMiddleware não implementa a interface do Middleware");

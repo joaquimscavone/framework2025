@@ -58,7 +58,7 @@ class Router
         return rtrim($uri,"/");
     }
 
-    protected function getRouteByUri($uri, Methods $method= Methods::GET){
+    protected function getRouteByUri($uri, $method= Methods::GET){
         /**
          * /quartos/35/pedidos/15
          * /quartos/{quarto}/pedidos/{pedido}
@@ -66,7 +66,7 @@ class Router
          */
         $uri = $this->checkUri($uri);
         foreach($this->routes as $key => $route){
-            if($route->getMethod() != $method){
+            if($route->getMethod()->value != $method){
                 continue;
             }
             $expression = preg_replace("(\{[a-z0-9_]{1,}\})","([a-zA-Z0-9_\-|\s]{1,})", $route->getUri());

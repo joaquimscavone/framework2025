@@ -6,14 +6,14 @@ use Fmk\Traits\Singleton;
 
 class Request
 {
-   use Singleton;
+    use Singleton;
 
 
     protected $uri;
     protected $method;
     protected $data;
 
-    
+
     const REQUEST_KEY = 'request_uri';
     final protected function __construct()
     {
@@ -22,7 +22,7 @@ class Request
         if ($this->method === 'GET') {
             $this->data = $_GET ?? [];
         } else {
-            $this->data = $_POST ?? [];
+            $this->data = $_REQUEST ?? [];
         }
         $this->uri = $this->data[static::REQUEST_KEY] ?? '';
         unset($this->data[static::REQUEST_KEY]);
@@ -52,22 +52,38 @@ class Request
     }
 
 
-    protected function toArray(){
+    protected function toArray()
+    {
         $uri = $this->uri;
         $data = $this->data;
         $method = $this->method;
         return compact('data', 'uri', 'method');
     }
 
-    protected function exec(){
-        if($route = $this->getRoute()){
+    protected function exec()
+    {
+        $route = $this->getRoute();
+        if ($route) {
             return $route->exec();
         }
         return Router::error404();
     }
 
-    protected function getRoute(){
+    protected function getRoute()
+    {
         return Router::getRouteByUri($this->uri, $this->method);
+    }
+
+    protected function back()
+    {
+        $old = Session::request_old();
+        if ($old) {
+            $route = Router::getRouteByUri($old['uri'] , $old['method']);
+            if ($route)
+                return $route->redirect();
+        }
+        header("Location: /");
+        exit;
     }
 
 
