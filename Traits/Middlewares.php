@@ -3,6 +3,7 @@
 namespace Fmk\Traits;
 
 use Exception;
+use Fmk\Facades\Config;
 use Fmk\Interfaces\Middleware;
 
 trait Middlewares
@@ -26,7 +27,14 @@ trait Middlewares
 
     public function swapMiddlewares()
     {
-        return $this->middlewares;
+        $middlewares = [];
+        foreach($this->middlewares as $middleware){
+            if(!class_exists($middleware)){
+                $middleware = Config::get("middlewares.$middleware");
+            }
+            $middlewares[] = $middleware;
+        }
+        return array_unique($middlewares);
     }
 
     public function checkMiddlewares(): bool

@@ -21,7 +21,7 @@ class Session
         if (defined('SESSION_NAME')) {
             session_name(constant('SESSION_NAME'));
         } elseif (defined('APPLICATION_NAME')) {
-            session_name(urlencode(constant('SESSION_NAME')));
+            session_name(urlencode(constant('APPLICATION_NAME')));
         }
         session_start();
         $this->init();

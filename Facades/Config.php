@@ -21,7 +21,7 @@ class Config
         $file_name = array_shift($keys); //middlewares;
         //$keys = [];
         $data = self::getFile($file_name);
-        return self::filter($data, $key, $default);
+        return self::filter($data, $keys, $default);
     }
 
     private static function getFile($file_name)
