@@ -16,6 +16,7 @@ class View{
     //new View('home'); $view->user = 'John'; $view->setData([]);
     public function setData(array $data){
         $this->data = $data;
+        return $this;
     }
 
     public function __get($name){

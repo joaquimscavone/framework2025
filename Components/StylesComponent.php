@@ -5,6 +5,7 @@ namespace Fmk\Components;
 class StylesComponent extends ScriptsComponent
 
 {
+    protected static $instance;
     protected function __construct(){
         parent::__construct('styles.php');
     }
