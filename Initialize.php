@@ -15,6 +15,7 @@ class Initialize
         $configs_path = __DIR__ . DIRECTORY_SEPARATOR . "configs" . DIRECTORY_SEPARATOR;
         $constantes = require $configs_path . 'constants.php';
         self::createConstants($constantes);
+        defined('DATABASE_DRIVERS') || define('DATABASE_DRIVERS',require $configs_path.'database_drivers.php');
     }
 
     public static function createConstants($constants)
