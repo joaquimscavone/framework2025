@@ -4,6 +4,7 @@ namespace Fmk\Facades\Database;
 
 use Exception;
 use Fmk\Facades\Database\Drivers\Driver;
+use Fmk\Facades\Model;
 
 class Query
 {
@@ -22,10 +23,19 @@ class Query
 
     protected array $columns = ['*'];
 
+    protected $class;
+
+    //procedimento de execução padrão.
+    protected $callback;
+
     public function __construct(Driver $driver, $table)
     {
         $this->driver = $driver;
         $this->table = $table;
+        if(class_exists($table) && is_subclass_of($table, Model::class)){
+            $this->class = $table; //App/Models/User
+            $this->table = $table::getTableName(); //users
+        }
         $this->builder = new Builder();
     }
 
@@ -46,6 +56,9 @@ class Query
             $this->limit,
             $this->offset
         )->exec();
+        if($this->class){
+            return $stm->fetchAll(\PDO::FETCH_CLASS, $this->class);
+        }
         return $stm->fetchAll(\PDO::FETCH_ASSOC);
     }
 
@@ -59,6 +72,9 @@ class Query
             $this->limit,
             $this->offset
         )->exec();
+          if($this->class){
+            return $stm->fetchObject($this->class);
+        }
         return $stm->fetch(\PDO::FETCH_ASSOC);
     }
 
@@ -123,6 +139,18 @@ class Query
             throw new Exception("Não se pode executar delete sem where");
         }
         return $this->driver->delete($this->table, $this->builder)->exec();
+    }
+
+    public function setCallback($callback){
+        $this->callback = $callback;
+        return $this;
+    }
+
+    public function exec(){
+        if($this->callback){
+            return call_user_func([$this,$this->callback]);
+        }
+        return null;
     }
 
 
