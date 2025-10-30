@@ -86,6 +86,15 @@ class Request
         exit;
     }
 
+    public function only($names){
+        $names = is_array($names)?$names:func_get_args();
+        $data = [];
+        foreach($names as $key){
+            $data[$key] = $this->$key;
+        }
+        return $data;
+    }
+
 
 
 }
